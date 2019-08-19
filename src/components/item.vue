@@ -1,6 +1,6 @@
 <template>
   <transition name="slide-fade">
-    <div class="list-item  editingClass editing " :class="{checked: item.checked}" v-show="!item.isDelete">
+    <div class="list-item  editingClass editing " :class="{checked: item.checked}" v-show="!item.isDelete" :disabled="locked">
       <label class="checkbox">
         <input type="checkbox" v-model="item.checked" name="checked" @change="onChangeRecord(item)" :disabled="locked">
         <span class="checkbox-custom"></span>
@@ -36,6 +36,8 @@ export default {
 
     },
     'locked': {
+      type: Boolean,
+      default: ''
     },
   },
   methods: {

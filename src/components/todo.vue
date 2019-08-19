@@ -53,25 +53,22 @@
     <!-- 列表主体模块 -->
     <div class="content-scrollable list-items">
       <div v-for="item in items" :key="item.id">
-        <item :item="item" :todoid="todoid" @init="init"></item>
+        <item :item="item" :todoid="todoid" @init="init" :locked="islock"></item>
       </div>
     </div>
   </div>
 </template>
 <script>  
 import item from './item'
-import { getTodo, addRecord, editTodo } from '../api/api';
+import { getTodo, addRecord, editTodo, getTodoList } from '../api/api';
 export default {
   data () {
     return {
-      todo: {
-        title: '星期一', //标题
-        count: 12, //数量
-        locked: false //是否绑定
-      },
+      todo: {},
       items: [  //代办单项列表
       ],
       todoid: '',
+      islock: '',
       text: '', //用户输入单项项绑定的输入
       isUpdate: false // 新增修改状态
     }
@@ -88,6 +85,8 @@ export default {
   created () {
     // created生命周期，在实例已经创建完成，页面还没渲染时调用init方法。
     this.init();
+    ququ
+
   },
   methods: {
     init () {
@@ -107,6 +106,7 @@ export default {
           locked: locked,
           isDelete: isDelete
         };
+        this.islock = locked
       });
     },
     onAdd () {
@@ -119,12 +119,18 @@ export default {
         //请求成功后初始化
       });
     },
-    updateTodo () {
+    updateTodo (isdelete) {
       let _this = this;
       editTodo({
         todo: this.todo
       }).then(data => {
-        _this.$store.dispatch('getTodo')
+        _this.$store.dispatch('getTodo').then(() => {
+          //如果是删除数据的按钮就执行这步
+          if (isdelete) {
+            let todoid = this.$store.state.todoList[0].id;
+            this.$store.dispatch('updateRounter', todoid);
+          }
+        });
       })
     },
     updateTitle () {
@@ -133,12 +139,13 @@ export default {
     },
     onlock () {
       this.todo.locked = !this.todo.locked;
+      this.islock = this.todo.locked;
       this.updateTodo();
     },
     onDelete () {
       this.todo.isDelete = true;
-      this.init();
-      this.updateTodo();
+      this.updateTodo(true);
+
     }
   }
 }

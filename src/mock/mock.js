@@ -61,10 +61,15 @@ export default {
       let todo = Todos.find(todo => {
         return id && todo.id === id;
       });
-      // todo.count (等待完成数目)等于 todo.record（代办事项列表下面未被选择的数据
-      todo.count = todo.record.filter(data => {
-        return data.checked === false;
-      }).length;
+      if (todo) {
+        // todo.count (等待完成数目)等于 todo.record（代办事项列表下面未被选择的数据
+        todo.count = todo.record.filter(data => {
+          return data.checked === false;
+        }).length;
+      } else {
+        todo = [];
+      }
+
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve([

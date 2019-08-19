@@ -1,13 +1,22 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <router-view/>
+    <loading v-if="showLoading"></loading>
+    <router-view />
   </div>
 </template>
 
 <script>
+import loading from '@/components/loading'
 export default {
-  name: 'App'
+  name: 'App',
+  computed: {
+    showLoading () {
+      return this.$store.state.showLoading;
+    }
+  },
+  components: {
+    loading
+  }
 }
 </script>
 

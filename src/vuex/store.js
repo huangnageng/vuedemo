@@ -6,7 +6,9 @@ Vue.use(Vuex); //安装 Vuex 插件
 // 创建初始应用全局状态变量
 const state = {
   todoList: [], //指我们的待办事项列表数据
-  menuOpen: false //移动端的时候菜单是否开启
+  menuOpen: false, //移动端的时候菜单是否开启
+  todoId: "", //需要打开的页面id
+  showLoading: true //控制loading的显示隐藏
 };
 // 定义所需的 mutations
 const mutations = {
@@ -17,6 +19,12 @@ const mutations = {
   MENUOPEN(state) {
     // 定义名为 MENUOPEN函数用作改变menuOpen的值
     state.menuOpen = !state.menuOpen;
+  },
+  ROUNTEROPEN(state, todoid) {
+    state.todoId = todoid;
+  },
+  LOADINGCONTROL(state, showLoading) {
+    state.showLoading = showLoading;
   }
 };
 // 创建 store 实例并且导出

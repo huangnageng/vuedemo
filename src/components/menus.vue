@@ -21,39 +21,33 @@ export default {
   data () {
     return {
       items: [], // 菜单数据
-      todoId: '' // 默认选中id
     };
   },
   computed: {
     todoList () {
       return this.$store.getters.getTodoList; // 返回vuex getters.js 定义的getTodoList数据
+    },
+    todoId () {
+      return this.$store.state.todoId;// 默认选中id
     }
   },
-  created () { // 调用请求菜单列表数据的接口
-    // getTodoList({}).then(res => {
-    //   const TODOS = res.data.todos; // 数据都会返回在res.data里面。
-    //   this.items = TODOS; // 我的把菜单数据赋值给定义的this.items
-    //   this.todoId = TODOS[0].id; // 把菜单数据的默认的第一个对象的id赋值给默认选中的id
-    // });
+  created () {
+    // 调用请求菜单列表数据的接口
     this.$store.dispatch('getTodo').then(() => { //调用vuex actions.js 里面的 getTodo函数
       this.$nextTick(() => {
-        this.goList(this.todoList[0].id);
+        new Promise((resolve, reject) => {
+          resolve(this.goList(this.todoList[0].id));
+        }).then(() => {
+          this.$store.dispatch('showLoaingFunc', false);
+        })
       });
     });
   },
   methods: {
     goList (id) { // 点击菜单时候,替换选中id
-      this.todoId = id;
+      this.$store.dispatch('updateRounter', id);
     },
     addTodoList () { // 点击新增按钮时候
-      // 调用新增菜单的接口，在接口调用成功在请求数据
-      // addTodo({}).then(data => {
-      //   getTodoList({}).then(res => {
-      //     const TODOS = res.data.todos;
-      //     this.todoId = TODOS[TODOS.length - 1].id;
-      //     this.items = TODOS;
-      //   });
-      // });
       //调用vuex actions.js 里面的 getTodo函数
       addTodo({}).then(data => {
         this.$store.dispatch('getTodo').then(() => {

@@ -22,5 +22,17 @@ export const updateMenu = ({
 }) => {
   commit("MENUOPEN"); // 调用store.js里面的MENUOPEN方法
 };
+export const updateRounter = (
+  {
+    //定义一个名字为updateRounter的事件
+    commit
+  },
+  todoid
+) => {
+  commit("ROUNTEROPEN", todoid); // 调用store.js里面的MENUOPEN方法
+};
+export const showLoaingFunc = ({ commit }, showLoading) => {
+  commit("LOADINGCONTROL", showLoading);
+};
 
 export const changeTodo = ({ commit }) => {};
