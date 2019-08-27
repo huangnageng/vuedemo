@@ -154,9 +154,9 @@ export default {
     updateTitle () {
       this.$store.dispatch('showLoaingFunc', true);
       editTodo({
-        category: { id: _this.todoid, name: this.todo.title }
+        category: { id: this.todoid, name: this.todo.title }
       }).then(data => {
-        this.showTip('aaaa')
+        this.showTip(data.message)
         this.updateTodo();
       })
       this.isUpdate = false
