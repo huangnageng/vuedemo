@@ -1,21 +1,28 @@
 <template>
   <div id="app">
-    <loading v-if="showLoading"></loading>
+    <loading v-show="showLoading"></loading>
     <router-view />
+    <tip v-show="showTip"></tip>
   </div>
 </template>
 
 <script>
 import loading from '@/components/loading'
+import tip from '@/components/tip'
+
 export default {
   name: 'App',
   computed: {
     showLoading () {
       return this.$store.state.showLoading;
+    },
+    showTip () {
+      return this.$store.state.tip.show;
     }
   },
   components: {
-    loading
+    loading,
+    tip
   }
 }
 </script>

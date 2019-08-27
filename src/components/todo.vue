@@ -31,14 +31,14 @@
       <!-- 右边显示删除图标和锁定图标的模块 -->
       <div class="nav-group right" v-show="!isUpdate">
         <div class="options-web">
-          <a class=" nav-item" @click="onlock">
+          <a class=" nav-item" @click="onEditStatus()">
             <!-- cicon-lock锁定的图标icon-unlock：非锁定的图标 -->
             <span class="icon-lock" v-if="todo.locked"></span>
             <span class="icon-unlock" v-else>
             </span>
           </a>
           <a class=" nav-item">
-            <span class="icon-trash" @click="onDelete">
+            <span class="icon-trash" @click="onDeleteStatus()">
             </span>
           </a>
         </div>
@@ -60,7 +60,7 @@
 </template>
 <script>  
 import item from './item'
-import { getTodo, addRecord, editTodo, getTodoList } from '../api/api';
+import { getTodo, addRecord, editTodo, getTodoList, editTodoStatus } from '../api/api';
 export default {
   data () {
     return {
@@ -85,34 +85,49 @@ export default {
   created () {
     // created生命周期，在实例已经创建完成，页面还没渲染时调用init方法。
     this.init();
-    ququ
-
   },
   methods: {
     init () {
+
+
       // 获取到 $route下params下的id,即我们在menus.vue组件处传入的数据。
       const ID = this.$route.params.id;
       this.todoid = ID
-      getTodo({ id: ID }).then(res => {
-
-        let { id, title, count, isDelete, locked, record
-        } = res.data.todo;
+      getTodo({ categoryId: ID }).then(res => {
+        // let { id, title, count, isDelete, locked, record
+        // } = res.data.todo;
+        // // 请求成功，拿到res.data.todo;在将record 赋值到代办单项列表，其它数据赋值到todo对象
+        // this.items = record;
+        // this.todo = {
+        //   id: id,
+        //   title: title,
+        //   count: count,
+        //   locked: locked,
+        //   isDelete: isDelete
+        // };
+        // let { category_id, name, status } = res.data.list;
         // 请求成功，拿到res.data.todo;在将record 赋值到代办单项列表，其它数据赋值到todo对象
-        this.items = record;
+        let list = this.$store.getters.getTodoList;
+
+        let newList = list.filter((el) => {
+          return el.id == ID
+        });
+        let losckstatus = newList[0].status == 0 ? true : false;
+        this.items = res.data.list;
         this.todo = {
-          id: id,
-          title: title,
-          count: count,
-          locked: locked,
-          isDelete: isDelete
+          id: newList[0].id,
+          title: newList[0].name,
+          count: newList[0].count,
+          locked: losckstatus,
+          isDelete: false
         };
-        this.islock = locked
+        this.islock = losckstatus
       });
     },
     onAdd () {
       //当用户输入文字，并且回车时调用次方法。
       const ID = this.$route.params.id;
-      addRecord({ id: ID, text: this.text }).then(res => {
+      addRecord({ categoryDetail: { categoryId: ID, id: 0, name: this.text } }).then(res => {
         this.text = '';
         this.init();
         this.updateTodo();
@@ -121,31 +136,50 @@ export default {
     },
     updateTodo (isdelete) {
       let _this = this;
-      editTodo({
-        todo: this.todo
-      }).then(data => {
-        _this.$store.dispatch('getTodo').then(() => {
-          //如果是删除数据的按钮就执行这步
-          if (isdelete) {
-            let todoid = this.$store.state.todoList[0].id;
-            this.$store.dispatch('updateRounter', todoid);
-          }
-        });
-      })
+      _this.$store.dispatch('getTodo').then((res) => {
+        //如果是删除数据的按钮就执行这步
+        if (isdelete) {
+          let todoid = this.$store.state.todoList[0].id;
+          this.$store.dispatch('updateRounter', todoid);
+        }
+      });
+
+    },
+    showTip (msg) {
+      this.$store.dispatch('showTipFunc', {
+        show: true,
+        text: msg
+      });
     },
     updateTitle () {
-      this.updateTodo();
+      this.$store.dispatch('showLoaingFunc', true);
+      editTodo({
+        category: { id: _this.todoid, name: this.todo.title }
+      }).then(data => {
+        this.showTip('aaaa')
+        this.updateTodo();
+      })
       this.isUpdate = false
     },
-    onlock () {
+    onEditStatus () {
+      this.$store.dispatch('showLoaingFunc', true);
+      let sta = 0;
       this.todo.locked = !this.todo.locked;
       this.islock = this.todo.locked;
-      this.updateTodo();
+      this.todo.locked ? sta = 0 : sta = 1
+      editTodoStatus({ id: this.todoid, status: sta }).then((data) => {
+        this.showTip(data.message)
+        this.updateTodo();
+      })
     },
-    onDelete () {
+    onDeleteStatus () {
+      this.$store.dispatch('showLoaingFunc', true);
       this.todo.isDelete = true;
-      this.updateTodo(true);
-
+      let sta = -1
+      editTodoStatus({ id: this.todoid, status: sta }).then((data) => {
+        this.showTip(data.message)
+        this.updateTodo(true);
+      })
     }
   }
 }

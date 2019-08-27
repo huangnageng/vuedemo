@@ -8,7 +8,12 @@ const state = {
   todoList: [], //指我们的待办事项列表数据
   menuOpen: false, //移动端的时候菜单是否开启
   todoId: "", //需要打开的页面id
-  showLoading: true //控制loading的显示隐藏
+  showLoading: true, //控制loading的显示隐藏
+  tip: {
+    //弹窗
+    show: false,
+    text: ""
+  }
 };
 // 定义所需的 mutations
 const mutations = {
@@ -25,6 +30,17 @@ const mutations = {
   },
   LOADINGCONTROL(state, showLoading) {
     state.showLoading = showLoading;
+  },
+  SHOWTIP(state, tip) {
+    //弹出信息时把loading框隐藏
+    state.showLoading = false;
+    state.tip = {
+      show: tip.show,
+      text: tip.text
+    };
+    setTimeout(function() {
+      state.tip.show = false;
+    }, 2000);
   }
 };
 // 创建 store 实例并且导出

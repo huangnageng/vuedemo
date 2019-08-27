@@ -1,12 +1,12 @@
 <template>
   <transition name="slide-fade">
-    <div class="list-item  editingClass editing " :class="{checked: item.checked}" v-show="!item.isDelete" :disabled="locked">
+    <div class="list-item  editingClass editing " :class="{checked: checked}" v-show="item.status!==-1" :disabled="locked">
       <label class="checkbox">
-        <input type="checkbox" v-model="item.checked" name="checked" @change="onChangeRecord(item)" :disabled="locked">
+        <input type="checkbox" v-model="checked" name="checked" @change="item.status == 0 ? item.status = 1 : item.status = 0;onChangeStatus(item)" :disabled="locked">
         <span class="checkbox-custom"></span>
       </label>
-      <input type="text" v-model="item.text" placeholder='写点什么。。。' :disabled=" item.checked || locked" @keyup.enter="onChangeRecord(item)">
-      <a class="delete-item" v-if="item.checked && !locked" @click="item.isDelete = true;onChangeRecord(item)">
+      <input type="text" v-model="item.name" placeholder='写点什么。。。' :disabled=" checked || locked" @keyup.enter="onChangeRecord(item)">
+      <a class="delete-item" v-if="item.status == 0 && !locked" @click="item.status = -1;onChangeStatus(item)">
         <span class="icon-trash"></span>
       </a>
     </div>
@@ -14,8 +14,13 @@
 </template>
 <script>
 // item 是todo的子组件,他接受一个对象item,来进行处理
-import { editRecord, changeRecord } from '../api/api';
+import { addRecord, editRecordStatus } from '../api/api';
 export default {
+  data () {
+    return {
+      checked: false
+    }
+  },
   props: {
     item: {
       type: Object,
@@ -28,10 +33,7 @@ export default {
     },
     'index': {
     },
-    'todoid': {
-      type: String,
-      default: ''
-    },
+    'todoid': {},
     'init': {
 
     },
@@ -40,15 +42,35 @@ export default {
       default: ''
     },
   },
+  created () {
+    this.checked = this.item.status == 0 ? true : false;
+  },
   methods: {
-    // 用户无论删除,修改，锁定都可以利用这个方法。
-    onChangeRecord (item) {
-      changeRecord({
-        id: this.todoid, item
-      }).then(data => {
-        this.$emit('init');
-        this.$store.dispatch('getTodo');
+    showTip (msg) {
+      this.$store.dispatch('showTipFunc', {
+        show: true,
+        text: msg
       });
+    },
+    onChangeRecord (item) {
+      this.$store.dispatch('showLoaingFunc', true);
+      //增加
+      addRecord({ categoryDetail: { categoryId: item.categoryId, id: item.id, name: item.name } }).then(data => {
+        this.showTip(data.message)
+        this.updateData();
+      });
+    },
+    onChangeStatus (item) {
+      this.$store.dispatch('showLoaingFunc', true);
+      //更改状态
+      editRecordStatus({ id: item.id, status: item.status }).then(data => {
+        this.showTip(data.message)
+        this.updateData();
+      })
+    },
+    updateData () {
+      this.$emit('init');
+      this.$store.dispatch('getTodo');
     }
   }
 };

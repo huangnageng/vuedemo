@@ -3,10 +3,10 @@
   <div class="list-todos">
     <!-- 绑定class，当items循环中的id等于我们设置的选中todoId时候,就会加上active这个calss,这样样式就会发生变化。-->
     <a @click="goList(item.id)" class="list-todo list activeListClass" :class="{'active': item.id === todoId}" v-for="(item,index) in todoList" :key="index">
-
-      <span class="icon-lock" v-if="item.locked"></span>
+      <!-- status=1是正常，0为锁定，-1为删除 -->
+      <span class="icon-lock" v-if="item.status==0"></span>
       <span class="count-list" v-if="item.count > 0">{{item.count}}</span>
-      {{item.title}}
+      {{item.name}}
     </a>
     <a class=" link-list-new" @click="addTodoList">
       <span class="icon-plus">
@@ -32,13 +32,21 @@ export default {
     }
   },
   created () {
+    // var numbers = [4, 2, 5, 1, 3];
+    // numbers.sort(function (a, b) {
+    //   return a - b;
+    // });
+    // console.log(numbers);
     // 调用请求菜单列表数据的接口
-    this.$store.dispatch('getTodo').then(() => { //调用vuex actions.js 里面的 getTodo函数
+    this.$store.dispatch('getTodo').then((res) => { //调用vuex actions.js 里面的 getTodo函
       this.$nextTick(() => {
         new Promise((resolve, reject) => {
-          resolve(this.goList(this.todoList[0].id));
-        }).then(() => {
-          this.$store.dispatch('showLoaingFunc', false);
+          this.goList(res.list[0].id);
+          resolve(res.list[0].id);
+        }).then((res) => {
+          if (res) {
+            this.$store.dispatch('showLoaingFunc', false);
+          }
         })
       });
     });
@@ -49,11 +57,13 @@ export default {
     },
     addTodoList () { // 点击新增按钮时候
       //调用vuex actions.js 里面的 getTodo函数
-      addTodo({}).then(data => {
+      this.$store.dispatch('showLoaingFunc', true);
+      addTodo({ category: { id: 0, name: 'newList' } }).then(data => {
         this.$store.dispatch('getTodo').then(() => {
           this.$nextTick(() => {
             setTimeout(() => {
               this.goList(this.todoList[this.todoList.length - 1].id);
+              this.$store.dispatch('showLoaingFunc', false);
             }, 100);
           });
         });

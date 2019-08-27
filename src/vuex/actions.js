@@ -11,8 +11,8 @@ export const getTodo = ({
      函数返回值后，在调用store.js里面的EDITTODE方法，并且把值传给它。
      */
     getTodoList().then(res => {
-      commit("EDITTODE", res.data.todos);
-      resolve();
+      commit("EDITTODE", res.data.list);
+      resolve(res.data);
     });
   });
 };
@@ -33,6 +33,9 @@ export const updateRounter = (
 };
 export const showLoaingFunc = ({ commit }, showLoading) => {
   commit("LOADINGCONTROL", showLoading);
+};
+export const showTipFunc = ({ commit }, tip) => {
+  commit("SHOWTIP", tip);
 };
 
 export const changeTodo = ({ commit }) => {};
